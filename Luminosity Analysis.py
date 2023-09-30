@@ -2,8 +2,8 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 
 # Image import - 1 for now
-img = cv.imread("Test Images/03_Control_Calcium_20x_0001.tiff", cv.IMREAD_GRAYSCALE)
-assert img is not None, "File not found/read"
+raw = cv.imread("Test Images/03_Control_Calcium_20x_0001.tiff", cv.IMREAD_GRAYSCALE)
+assert raw is not None, "RAW file not found/read"
 # TODO add remaining files
 
 """
@@ -16,20 +16,25 @@ Pipeline:
 """
 
 # Otsu Thresholding
-ret1, mask = cv.threshold(img, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+rt1, otsu = cv.threshold(raw, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+# Show Result
+plt.imshow(otsu, "gray")
+plt.show()
+
+# Mask white cells against Original Image (LUT)
+mask = cv.bitwise_and(otsu, raw)
 
 # Show Result
 plt.imshow(mask, "gray")
 plt.show()
 
-# Mask white cells against Original Image
-mask2 = cv.bitwise_and(mask, img)
+# Apply Color Map
+mask2 = cv.applyColorMap(mask, cv.COLORMAP_HSV)
 
 # Show Result
-plt.imshow(mask2, "gray")
+plt.imshow(mask2)
 plt.show()
-
-#
 
 # Measure pixel intensities
 red_hist = cv.calcHist(mask2, [0], None, [256], [0, 255])
